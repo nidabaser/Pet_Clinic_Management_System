@@ -1,0 +1,10 @@
+spring.application.name=Pet_Clinic_Management_System
+
+spring.datasource.url = jdbc:postgresql://localhost:5432/petclinic
+spring.datasource.username = postgres
+spring.datasource.password =
+
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto = update
+spring.jpa.show-sql = true
+spring.jpa.properties.hibernate.format_sql=true
