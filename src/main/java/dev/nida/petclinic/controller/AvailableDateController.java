@@ -5,6 +5,7 @@ import dev.nida.petclinic.dto.request.AvailableDateRequest;
 import dev.nida.petclinic.dto.response.AvailableDateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -23,19 +24,19 @@ public class AvailableDateController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public List<AvailableDateResponse> findAll(){
+    public ResponseEntity<List<AvailableDateResponse>> findAll(){
         return availableDateService.findAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AvailableDateResponse getById(@PathVariable("id") long id){
+    public ResponseEntity<AvailableDateResponse> getById(@PathVariable("id") long id){
         return availableDateService.getById(id);
     }
 
     @GetMapping("/date-range")
     @ResponseStatus(HttpStatus.OK)
-    public List<AvailableDateResponse> getDoctorAvailableDateInRange(
+    public ResponseEntity<List<AvailableDateResponse>> getDoctorAvailableDateInRange(
             @RequestParam long doctorId,
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate
@@ -45,13 +46,13 @@ public class AvailableDateController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public AvailableDateResponse save(@RequestBody AvailableDateRequest request){
+    public ResponseEntity<AvailableDateResponse> save(@RequestBody AvailableDateRequest request){
         return availableDateService.create(request);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AvailableDateResponse update(@PathVariable("id") long id, @RequestBody AvailableDateRequest request){
+    public ResponseEntity<AvailableDateResponse> update(@PathVariable("id") long id, @RequestBody AvailableDateRequest request){
         return availableDateService.update(id, request);
     }
 

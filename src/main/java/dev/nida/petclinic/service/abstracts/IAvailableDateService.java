@@ -2,6 +2,8 @@ package dev.nida.petclinic.service.abstracts;
 
 import dev.nida.petclinic.dto.request.AvailableDateRequest;
 import dev.nida.petclinic.dto.response.AvailableDateResponse;
+import org.springframework.http.ResponseEntity;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,18 +14,18 @@ import java.util.List;
 
 public interface IAvailableDateService {
 
-    public List<AvailableDateResponse> findAll();
+    ResponseEntity<List<AvailableDateResponse>> findAll();
 
-    public AvailableDateResponse getById(long id);
+    ResponseEntity<AvailableDateResponse> getById(long id);
 
-    public AvailableDateResponse create(AvailableDateRequest request);
+    ResponseEntity<AvailableDateResponse> create(AvailableDateRequest request);
 
-    public AvailableDateResponse update(long id, AvailableDateRequest request);
+    ResponseEntity<AvailableDateResponse> update(long id, AvailableDateRequest request);
 
-    public void deleteById(long id);
+    ResponseEntity<Void> deleteById(long id);
 
-    boolean existByDoctorIdAndAvailableDate(long doctorId, LocalDate availableDate);
+    ResponseEntity<Boolean> existByDoctorIdAndAvailableDate(long doctorId, LocalDate availableDate);
 
-    public List<AvailableDateResponse> getDoctorAvailableDateInRange(long doctorId, LocalDate startDate, LocalDate endDate);
+    ResponseEntity<List<AvailableDateResponse>> getDoctorAvailableDateInRange(long doctorId, LocalDate startDate, LocalDate endDate);
 
 }
