@@ -70,23 +70,27 @@ public class AppointmentManager implements IAppointmentService {
     @Override
     public ResponseEntity<AppointmentResponse> create(AppointmentRequest request) {
 
-        if (!availableDateManager.existByDoctorIdAndAvailableDate(request.getDoctor().getId(), request.getAppointmentDate().toLocalDate())) {
+        ResponseEntity<Boolean> dateExistsResponse = availableDateManager.existByDoctorIdAndAvailableDate(request.getDoctor().getId(), request.getAppointmentDate().toLocalDate());
+        Boolean dateExists = dateExistsResponse.getBody();
 
+        if (dateExists == null || !dateExists) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
         }
-        if (!isDoctorAvailableAtTime(request.getDoctor().getId(), request.getAppointmentDate()).getBody()) {
 
+        ResponseEntity<Boolean> availabilityResponse = isDoctorAvailableAtTime(request.getDoctor().getId(), request.getAppointmentDate());
+        Boolean isDoctorAvailable = availabilityResponse.getBody();
+
+        if (isDoctorAvailable == null || !isDoctorAvailable) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
         }
+
         Appointment appointmentSaved = appointmentRepo.save(appointmentMapper.asEntity(request));
 
         AppointmentResponse appointmentResponse = appointmentMapper.asOutput(appointmentSaved);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(appointmentResponse);
-
     }
+
 
     @Override
     public ResponseEntity<AppointmentResponse> update(long id, AppointmentRequest request) {
