@@ -10,7 +10,10 @@ import dev.nida.petclinic.dto.response.AnimalResponse;
 import dev.nida.petclinic.entities.Animal;
 import dev.nida.petclinic.mapper.AnimalMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -28,52 +31,77 @@ public class AnimalManager implements IAnimalService {
     private final AnimalMapper animalMapper;
 
     @Override
-    public List<AnimalResponse> findAll() {
+    public ResponseEntity<List<AnimalResponse>> findAll() {
 
-        return animalMapper.asOutput(animalRepo.findAll());
+        List<Animal> animals = animalRepo.findAll();
 
-    }
+        if (animals.isEmpty()) {
 
-    @Override
-    public AnimalResponse getById(Long id) {
-
-        return animalMapper.asOutput(animalRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND)));
-
-    }
-
-    @Override
-    public List<AnimalResponse> getByCustomerName(String name) {
-
-        if (animalRepo.findByCustomerName(name).isEmpty()) {
-
-            throw new NotFoundException(Msg.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         }
-        return animalMapper.asOutput(animalRepo.findByCustomerName(name));
+        List<AnimalResponse> animalResponses = animalMapper.asOutput(animals);
+
+        return ResponseEntity.ok(animalResponses);
 
     }
 
     @Override
-    public AnimalResponse create(AnimalRequest request) {
+    public ResponseEntity<AnimalResponse> getById(Long id) {
+
+        Optional<Animal> animal = animalRepo.findById(id);
+
+        if (animal.isEmpty()) {
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
+        AnimalResponse animalResponse = animalMapper.asOutput(animal.get());
+
+        return ResponseEntity.ok(animalResponse);
+
+    }
+
+    @Override
+    public ResponseEntity<List<AnimalResponse>> getByCustomerName(String name) {
+
+        List<Animal> animals = animalRepo.findByCustomerName(name);
+
+        if (animals.isEmpty()) {
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
+        List<AnimalResponse> animalResponses = animalMapper.asOutput(animals);
+
+        return ResponseEntity.ok(animalResponses);
+
+    }
+
+    @Override
+    public ResponseEntity<AnimalResponse> create(AnimalRequest request) {
 
         Optional<Animal> isAnimalExist = animalRepo.findByCustomerIdAndName(request.getCustomer().getId(), request.getName());
 
-        if (isAnimalExist.isEmpty()){
+        if (isAnimalExist.isPresent()) {
 
-            Animal animalSaved = animalRepo.save(animalMapper.asEntity(request));
-
-            return animalMapper.asOutput(animalSaved);
+            throw new DataExistsException(Msg.DATA_EXISTS);
 
         }
-        throw new DataExistsException(Msg.DATA_EXISTS);
+        Animal animalSaved = animalRepo.save(animalMapper.asEntity(request));
+
+        AnimalResponse animalResponse = animalMapper.asOutput(animalSaved);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(animalResponse);
+
     }
 
     @Override
-    public AnimalResponse update(Long id, AnimalRequest request) {
+    public ResponseEntity<AnimalResponse> update(Long id, AnimalRequest request) {
 
         Optional<Animal> animalFromDb = animalRepo.findById(id);
 
-        if (animalFromDb.isEmpty()){
+        if (animalFromDb.isEmpty()) {
 
             throw new NotFoundException(Msg.NOT_FOUND);
 
@@ -84,7 +112,7 @@ public class AnimalManager implements IAnimalService {
 
         Optional<Animal> newAnimal = animalRepo.findByCustomerIdAndName(newCustomerId, newName);
 
-        if (newAnimal.isPresent() && newAnimal.get().getId() != id){
+        if (newAnimal.isPresent() && newAnimal.get().getId() != id) {
 
             throw new DataExistsException(Msg.DATA_EXISTS);
 
@@ -93,35 +121,46 @@ public class AnimalManager implements IAnimalService {
 
         animalMapper.update(animal, request);
 
-        return animalMapper.asOutput(animalRepo.save(animal));
+        Animal updatedAnimal = animalRepo.save(animal);
+
+        AnimalResponse animalResponse = animalMapper.asOutput(updatedAnimal);
+
+        return ResponseEntity.ok(animalResponse);
 
     }
 
     @Override
-    public void deleteById(Long id) {
+    public ResponseEntity<Void> deleteById(Long id) {
 
         Optional<Animal> animalFromDb = animalRepo.findById(id);
 
-        if (animalFromDb.isPresent()){
+        if (animalFromDb.isPresent()) {
 
             animalRepo.delete(animalFromDb.get());
 
+            return ResponseEntity.ok().build();
+
         } else {
 
-            throw new NotFoundException(Msg.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         }
     }
 
     @Override
-    public List<AnimalResponse> getByName(String name) {
+    public ResponseEntity<List<AnimalResponse>> getByName(String name) {
 
-        if (animalRepo.findByNameIgnoreCase(name).isEmpty()){
+        List<Animal> animals = animalRepo.findByNameIgnoreCase(name);
 
-            throw new NotFoundException(Msg.NOT_FOUND);
+        if (animals.isEmpty()) {
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         }
-        return animalMapper.asOutput(animalRepo.findByNameIgnoreCase(name));
+        List<AnimalResponse> animalResponses = animalMapper.asOutput(animals);
+
+        return ResponseEntity.ok(animalResponses);
 
     }
+
 }
