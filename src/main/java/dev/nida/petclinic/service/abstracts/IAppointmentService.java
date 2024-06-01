@@ -2,6 +2,8 @@ package dev.nida.petclinic.service.abstracts;
 
 import dev.nida.petclinic.dto.request.AppointmentRequest;
 import dev.nida.petclinic.dto.response.AppointmentResponse;
+import org.springframework.http.ResponseEntity;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,20 +15,20 @@ import java.util.List;
 
 public interface IAppointmentService {
 
-    public List<AppointmentResponse> findAll();
+    ResponseEntity<List<AppointmentResponse>> findAll();
 
-    public AppointmentResponse getById(long id);
+    ResponseEntity<AppointmentResponse> getById(long id);
 
-    public AppointmentResponse create(AppointmentRequest request);
+    ResponseEntity<AppointmentResponse> create(AppointmentRequest request);
 
-    public AppointmentResponse update(long id, AppointmentRequest request);
+    ResponseEntity<AppointmentResponse> update(long id, AppointmentRequest request);
 
-    public void deleteById(long id);
+    ResponseEntity<Void> deleteById(long id);
 
-    public boolean isDoctorAvailableAtTime(long doctorId, LocalDateTime appointmentDate);
+    ResponseEntity<Boolean> isDoctorAvailableAtTime(long doctorId, LocalDateTime appointmentDate);
 
-    public List<AppointmentResponse> getAnimalAppointmentDateInRange(long animalId, LocalDate startDate, LocalDate endDate);
+    ResponseEntity<List<AppointmentResponse>> getAnimalAppointmentDateInRange(long animalId, LocalDate startDate, LocalDate endDate);
 
-    public List<AppointmentResponse> getDoctorAppointmentDateInRange(long doctorId, LocalDate startDate, LocalDate endDate);
+    ResponseEntity<List<AppointmentResponse>> getDoctorAppointmentDateInRange(long doctorId, LocalDate startDate, LocalDate endDate);
 
 }

@@ -5,6 +5,7 @@ import dev.nida.petclinic.dto.request.AppointmentRequest;
 import dev.nida.petclinic.dto.response.AppointmentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -23,19 +24,19 @@ public class AppointmentController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public List<AppointmentResponse> findAll(){
+    public ResponseEntity<List<AppointmentResponse>> findAll(){
         return appointmentService.findAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AppointmentResponse getById(@PathVariable("id") long id){
+    public ResponseEntity<AppointmentResponse> getById(@PathVariable("id") long id){
         return appointmentService.getById(id);
     }
 
     @GetMapping("/animal/date-range")
     @ResponseStatus(HttpStatus.OK)
-    public List<AppointmentResponse> getAnimalAppointmentDateInRange(
+    public ResponseEntity<List<AppointmentResponse>> getAnimalAppointmentDateInRange(
             @RequestParam long animalId,
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate
@@ -45,7 +46,7 @@ public class AppointmentController {
 
     @GetMapping("/doctor/date-range")
     @ResponseStatus(HttpStatus.OK)
-    public List<AppointmentResponse> getDoctorAppointmentDateInRange(
+    public ResponseEntity<List<AppointmentResponse>> getDoctorAppointmentDateInRange(
             @RequestParam long doctorId,
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate
@@ -55,13 +56,13 @@ public class AppointmentController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public AppointmentResponse save(@RequestBody AppointmentRequest request){
+    public ResponseEntity<AppointmentResponse> save(@RequestBody AppointmentRequest request){
         return appointmentService.create(request);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AppointmentResponse update(@PathVariable("id") long id, @RequestBody AppointmentRequest request){
+    public ResponseEntity<AppointmentResponse> update(@PathVariable("id") long id, @RequestBody AppointmentRequest request){
         return appointmentService.update(id, request);
     }
 
@@ -70,5 +71,4 @@ public class AppointmentController {
     public void delete(@PathVariable("id") long id){
         appointmentService.deleteById(id);
     }
-
 }
