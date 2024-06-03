@@ -2,6 +2,8 @@ package dev.nida.petclinic.service.abstracts;
 
 import dev.nida.petclinic.dto.request.VaccineRequest;
 import dev.nida.petclinic.dto.response.VaccineResponse;
+import org.springframework.http.ResponseEntity;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,18 +14,18 @@ import java.util.List;
 
 public interface IVaccineService {
 
-    public List<VaccineResponse> findAll();
+    ResponseEntity<List<VaccineResponse>> findAll();
 
-    public VaccineResponse getById(long id);
+    ResponseEntity<VaccineResponse> getById(long id);
 
-    public List<VaccineResponse> getByAnimal(long id);
+    ResponseEntity<List<VaccineResponse>> getByAnimal(long id);
 
-    public List<VaccineResponse> getVaccinesInDateRange(LocalDate startDate, LocalDate endDate);
+    ResponseEntity<List<VaccineResponse>> getVaccinesInDateRange(LocalDate startDate, LocalDate endDate);
 
-    public VaccineResponse create(VaccineRequest request);
+    ResponseEntity<VaccineResponse> create(VaccineRequest request);
 
-    public VaccineResponse update(long id, VaccineRequest request);
+    ResponseEntity<VaccineResponse> update(long id, VaccineRequest request);
 
-    public void deleteById(long id);
+    ResponseEntity<Void> deleteById(long id);
 
 }

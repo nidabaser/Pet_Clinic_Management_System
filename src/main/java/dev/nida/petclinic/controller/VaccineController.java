@@ -5,6 +5,7 @@ import dev.nida.petclinic.dto.request.VaccineRequest;
 import dev.nida.petclinic.dto.response.VaccineResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -23,25 +24,25 @@ public class VaccineController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public List<VaccineResponse> findAll(){
+    public ResponseEntity<List<VaccineResponse>> findAll(){
         return vaccineService.findAll();
     }
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public VaccineResponse getById(@PathVariable("id") long id){
+    public ResponseEntity<VaccineResponse> getById(@PathVariable("id") long id){
         return vaccineService.getById(id);
     }
 
     @GetMapping("/animal/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public List<VaccineResponse> getByAnimal(@PathVariable("id") long id){
+    public ResponseEntity<List<VaccineResponse>> getByAnimal(@PathVariable("id") long id){
         return vaccineService.getByAnimal(id);
     }
 
     @GetMapping("/date-range")
     @ResponseStatus(HttpStatus.OK)
-    public List<VaccineResponse> getVaccineInDateRange(
+    public ResponseEntity<List<VaccineResponse>> getVaccineInDateRange(
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate
     ){
@@ -50,13 +51,13 @@ public class VaccineController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public VaccineResponse save(@RequestBody VaccineRequest request){
+    public ResponseEntity<VaccineResponse> save(@RequestBody VaccineRequest request){
         return vaccineService.create(request);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public VaccineResponse update(@PathVariable("id") long id, @RequestBody VaccineRequest request){
+    public ResponseEntity<VaccineResponse> update(@PathVariable("id") long id, @RequestBody VaccineRequest request){
         return vaccineService.update(id, request);
     }
 

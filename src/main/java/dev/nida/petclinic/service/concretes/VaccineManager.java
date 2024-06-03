@@ -10,6 +10,8 @@ import dev.nida.petclinic.dto.response.VaccineResponse;
 import dev.nida.petclinic.entities.Vaccine;
 import dev.nida.petclinic.mapper.VaccineMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,70 +32,94 @@ public class VaccineManager implements IVaccineService {
     private final VaccineMapper vaccineMapper;
 
     @Override
-    public List<VaccineResponse> findAll() {
+    public ResponseEntity<List<VaccineResponse>> findAll() {
 
-        return vaccineMapper.asOutput(vaccineRepo.findAll());
-    }
+        List<Vaccine> vaccines = vaccineRepo.findAll();
 
-    @Override
-    public VaccineResponse getById(long id) {
+        if (vaccines.isEmpty()) {
 
-        return vaccineMapper.asOutput(vaccineRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND)));
-    }
-
-    @Override
-    public List<VaccineResponse> getByAnimal(long id) {
-
-        if (vaccineRepo.findByAnimalId(id).isEmpty()){
-
-            throw new NotFoundException(Msg.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         }
-        return vaccineMapper.asOutput(vaccineRepo.findByAnimalId(id));
+
+        List<VaccineResponse> vaccineResponses = vaccineMapper.asOutput(vaccines);
+
+        return ResponseEntity.ok(vaccineResponses);
 
     }
 
     @Override
-    public List<VaccineResponse> getVaccinesInDateRange(LocalDate startDate, LocalDate endDate) {
+    public ResponseEntity<VaccineResponse> getById(long id) {
 
-        return vaccineMapper.asOutput(vaccineRepo.findByProtectionFinishDateBetween(startDate, endDate));
+        Optional<Vaccine> vaccine = vaccineRepo.findById(id);
+
+        if (vaccine.isEmpty()) {
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
+        VaccineResponse vaccineResponse = vaccineMapper.asOutput(vaccine.get());
+
+        return ResponseEntity.ok(vaccineResponse);
 
     }
 
     @Override
-    public VaccineResponse create(VaccineRequest request) {
+    public ResponseEntity<List<VaccineResponse>> getByAnimal(long id) {
+
+        List<Vaccine> vaccines = vaccineRepo.findByAnimalId(id);
+
+        if (vaccines.isEmpty()) {
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }
+        List<VaccineResponse> vaccineResponses = vaccineMapper.asOutput(vaccines);
+
+        return ResponseEntity.ok(vaccineResponses);
+
+    }
+
+    @Override
+    public ResponseEntity<List<VaccineResponse>> getVaccinesInDateRange(LocalDate startDate, LocalDate endDate) {
+
+        List<Vaccine> vaccines = vaccineRepo.findByProtectionFinishDateBetween(startDate, endDate);
+
+        if (vaccines.isEmpty()) {
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }
+
+        List<VaccineResponse> vaccineResponses = vaccineMapper.asOutput(vaccines);
+
+        return ResponseEntity.ok(vaccineResponses);
+
+    }
+
+    @Override
+    public ResponseEntity<VaccineResponse> create(VaccineRequest request) {
 
         Optional<Vaccine> isVaccineExist = vaccineRepo.findByNameAndCodeAndAnimalId(
 
                 request.getName(), request.getCode(), request.getAnimal().getId()
         );
 
-        if (isVaccineExist.isEmpty()){
+        if (isVaccineExist.isPresent()) {
 
-            Vaccine vaccineSaved = vaccineRepo.save(vaccineMapper.asEntity(request));
-
-            return vaccineMapper.asOutput(vaccineSaved);
-
-        } else {
-
-            LocalDate today = LocalDate.now();
-
-            LocalDate controlDate = isVaccineExist.get().getProtectionFinishDate();
-
-            if (controlDate.isBefore(today) || controlDate.isEqual(today)){
-
-                Vaccine vaccineSaved = vaccineRepo.save(vaccineMapper.asEntity(request));
-
-                return vaccineMapper.asOutput(vaccineSaved);
-
-            }
-            throw new DataExistsException(Msg.PROTECTION_CONTINUES);
+            throw new DataExistsException(Msg.DATA_EXISTS);
 
         }
+        Vaccine vaccineSaved = vaccineRepo.save(vaccineMapper.asEntity(request));
+
+        VaccineResponse vaccineResponse = vaccineMapper.asOutput(vaccineSaved);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(vaccineResponse);
+
     }
 
     @Override
-    public VaccineResponse update(long id, VaccineRequest request) {
+    public ResponseEntity<VaccineResponse> update(long id, VaccineRequest request) {
 
         Optional<Vaccine> vaccineFromDb = vaccineRepo.findById(id);
 
@@ -102,6 +128,7 @@ public class VaccineManager implements IVaccineService {
             throw new NotFoundException(Msg.NOT_FOUND);
 
         }
+
         Optional<Vaccine> newVaccine = vaccineRepo.findByNameAndCodeAndAnimalId(
 
                 request.getName(), request.getCode(), request.getAnimal().getId()
@@ -112,26 +139,34 @@ public class VaccineManager implements IVaccineService {
             throw new DataExistsException(Msg.DATA_EXISTS);
 
         }
-        vaccineMapper.update(vaccineFromDb.get(), request);
+        Vaccine vaccine = vaccineFromDb.get();
 
-        return vaccineMapper.asOutput(vaccineRepo.save(vaccineFromDb.get()));
+        vaccineMapper.update(vaccine, request);
+
+        Vaccine updatedVaccine = vaccineRepo.save(vaccine);
+
+        VaccineResponse vaccineResponse = vaccineMapper.asOutput(updatedVaccine);
+
+        return ResponseEntity.ok(vaccineResponse);
 
     }
 
     @Override
-    public void deleteById(long id) {
+    public ResponseEntity<Void> deleteById(long id) {
 
         Optional<Vaccine> vaccineFromDb = vaccineRepo.findById(id);
 
-        if (vaccineFromDb.isPresent()){
+        if (vaccineFromDb.isPresent()) {
 
             vaccineRepo.delete(vaccineFromDb.get());
 
+            return ResponseEntity.ok().build();
+
         } else {
 
-            throw new NotFoundException(Msg.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         }
-    }
 
+    }
 }
