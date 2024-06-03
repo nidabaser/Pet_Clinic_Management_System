@@ -5,6 +5,7 @@ import dev.nida.petclinic.dto.request.CustomerRequest;
 import dev.nida.petclinic.dto.response.CustomerResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -22,31 +23,31 @@ public class CustomerController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public List<CustomerResponse> findAll(){
+    public ResponseEntity<List<CustomerResponse>> findAll(){
         return customerService.findAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerResponse getById(@PathVariable("id") long id){
+    public ResponseEntity<CustomerResponse> getById(@PathVariable("id") long id){
         return customerService.getById(id);
     }
 
     @GetMapping("/name/{name}")
     @ResponseStatus(HttpStatus.OK)
-    public List<CustomerResponse> getByName(@PathVariable("name") String name){
+    public ResponseEntity<List<CustomerResponse>> getByName(@PathVariable("name") String name){
         return customerService.getByName(name);
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerResponse save(@RequestBody CustomerRequest request){
+    public ResponseEntity<CustomerResponse> save(@RequestBody CustomerRequest request){
         return customerService.create(request);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerResponse update(@PathVariable("id") long id, @RequestBody CustomerRequest request){
+    public ResponseEntity<CustomerResponse> update(@PathVariable("id") long id, @RequestBody CustomerRequest request){
         return customerService.update(id, request);
     }
 

@@ -1,5 +1,7 @@
 package dev.nida.petclinic.service.concretes;
 
+import dev.nida.petclinic.dto.response.AnimalResponse;
+import dev.nida.petclinic.entities.Animal;
 import dev.nida.petclinic.service.abstracts.ICustomerService;
 import dev.nida.petclinic.core.exception.DataExistsException;
 import dev.nida.petclinic.core.exception.NotFoundException;
@@ -10,6 +12,8 @@ import dev.nida.petclinic.dto.response.CustomerResponse;
 import dev.nida.petclinic.entities.Customer;
 import dev.nida.petclinic.mapper.CustomerMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -28,49 +32,72 @@ public class CustomerManager implements ICustomerService {
     private final CustomerMapper customerMapper;
 
     @Override
-    public List<CustomerResponse> findAll() {
+    public ResponseEntity<List<CustomerResponse>> findAll() {
 
-        return customerMapper.asOutput(customerRepo.findAll());
+        List<Customer> customers = customerRepo.findAll();
 
-    }
+        if (customers.isEmpty()) {
 
-    @Override
-    public CustomerResponse getById(long id) {
-
-        return customerMapper.asOutput(customerRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND)));
-
-    }
-
-    @Override
-    public List<CustomerResponse> getByName(String name) {
-
-        if (customerRepo.findByNameIgnoreCase(name).isEmpty()){
-
-            throw new NotFoundException(Msg.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         }
-        return customerMapper.asOutput(customerRepo.findByNameIgnoreCase(name));
+        List<CustomerResponse> customerResponses = customerMapper.asOutput(customers);
+
+        return ResponseEntity.ok(customerResponses);
 
     }
 
     @Override
-    public CustomerResponse create(CustomerRequest request) {
+    public ResponseEntity<CustomerResponse> getById(long id) {
+
+        Optional<Customer> customer = customerRepo.findById(id);
+
+        if (customer.isEmpty()) {
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
+        CustomerResponse customerResponse = customerMapper.asOutput(customer.get());
+
+        return ResponseEntity.ok(customerResponse);
+
+    }
+
+    @Override
+    public ResponseEntity<List<CustomerResponse>> getByName(String name) {
+
+        List<Customer> customers = customerRepo.findByNameIgnoreCase(name);
+
+        if (customers.isEmpty()) {
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }
+        List<CustomerResponse> customerResponses = customerMapper.asOutput(customers);
+
+        return ResponseEntity.ok(customerResponses);
+    }
+
+    @Override
+    public ResponseEntity<CustomerResponse> create(CustomerRequest request) {
 
         Optional<Customer> isCustomerExist = customerRepo.findByMail(request.getMail());
 
-        if (isCustomerExist.isEmpty()){
+        if (isCustomerExist.isPresent()){
 
-            Customer customerSaved = customerRepo.save(customerMapper.asEntity(request));
-
-            return customerMapper.asOutput(customerSaved);
+            throw new DataExistsException(Msg.DATA_EXISTS);
 
         }
-        throw new DataExistsException(Msg.DATA_EXISTS);
+        Customer customerSaved = customerRepo.save(customerMapper.asEntity(request));
+
+        CustomerResponse customerResponse = customerMapper.asOutput(customerSaved);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerResponse);
 
     }
 
     @Override
-    public CustomerResponse update(long id, CustomerRequest request) {
+    public ResponseEntity<CustomerResponse> update(long id, CustomerRequest request) {
 
         Optional<Customer> customerFromDb = customerRepo.findById(id);
 
@@ -92,12 +119,16 @@ public class CustomerManager implements ICustomerService {
 
         customerMapper.update(customer, request);
 
-        return customerMapper.asOutput(customerRepo.save(customer));
+        Customer updatedCustomer = customerRepo.save(customer);
+
+        CustomerResponse customerResponse = customerMapper.asOutput(updatedCustomer);
+
+        return ResponseEntity.ok(customerResponse);
 
     }
 
     @Override
-    public void deleteById(long id) {
+    public ResponseEntity<Void> deleteById(long id) {
 
         Optional<Customer> customerFromDb = customerRepo.findById(id);
 
@@ -105,9 +136,11 @@ public class CustomerManager implements ICustomerService {
 
             customerRepo.delete(customerFromDb.get());
 
+            return ResponseEntity.ok().build();
+
         } else {
 
-            throw new NotFoundException(Msg.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         }
     }

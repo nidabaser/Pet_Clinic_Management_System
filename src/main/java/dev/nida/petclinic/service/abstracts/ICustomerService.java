@@ -2,6 +2,8 @@ package dev.nida.petclinic.service.abstracts;
 
 import dev.nida.petclinic.dto.request.CustomerRequest;
 import dev.nida.petclinic.dto.response.CustomerResponse;
+import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 
 /**
@@ -11,16 +13,16 @@ import java.util.List;
 
 public interface ICustomerService {
 
-    public List<CustomerResponse> findAll();
+    ResponseEntity<List<CustomerResponse>> findAll();
 
-    public CustomerResponse getById(long id);
+    ResponseEntity<CustomerResponse> getById(long id);
 
-    public List<CustomerResponse> getByName(String name);
+    ResponseEntity<List<CustomerResponse>> getByName(String name);
 
-    public CustomerResponse create(CustomerRequest request);
+    ResponseEntity<CustomerResponse> create(CustomerRequest request);
 
-    public CustomerResponse update(long id, CustomerRequest request);
+    ResponseEntity<CustomerResponse> update(long id, CustomerRequest request);
 
-    public void deleteById(long id);
+    ResponseEntity<Void> deleteById(long id);
 
 }
