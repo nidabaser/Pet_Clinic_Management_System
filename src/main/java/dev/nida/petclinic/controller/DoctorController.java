@@ -5,6 +5,7 @@ import dev.nida.petclinic.dto.request.DoctorRequest;
 import dev.nida.petclinic.dto.response.DoctorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -22,25 +23,25 @@ public class DoctorController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public List<DoctorResponse> findAll(){
+    public ResponseEntity<List<DoctorResponse>> findAll(){
         return doctorService.findAll();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public DoctorResponse getById(@PathVariable("id") long id){
+    public ResponseEntity<DoctorResponse> getById(@PathVariable("id") long id){
         return doctorService.getById(id);
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public DoctorResponse save(@RequestBody DoctorRequest request){
+    public ResponseEntity<DoctorResponse> save(@RequestBody DoctorRequest request){
         return doctorService.create(request);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public DoctorResponse update(@PathVariable("id") long id, @RequestBody DoctorRequest request){
+    public ResponseEntity<DoctorResponse> update(@PathVariable("id") long id, @RequestBody DoctorRequest request){
         return doctorService.update(id, request);
     }
 

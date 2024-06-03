@@ -10,7 +10,10 @@ import dev.nida.petclinic.dto.response.DoctorResponse;
 import dev.nida.petclinic.entities.Doctor;
 import dev.nida.petclinic.mapper.DoctorMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -28,35 +31,56 @@ public class DoctorManager implements IDoctorService {
     private final DoctorMapper doctorMapper;
 
     @Override
-    public List<DoctorResponse> findAll() {
+    public ResponseEntity<List<DoctorResponse>> findAll() {
 
-        return doctorMapper.asOutput(doctorRepo.findAll());
+        List<Doctor> doctors = doctorRepo.findAll();
+
+        if (doctors.isEmpty()) {
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }
+        List<DoctorResponse> doctorResponses = doctorMapper.asOutput(doctors);
+
+        return ResponseEntity.ok(doctorResponses);
+
     }
 
     @Override
-    public DoctorResponse getById(long id) {
+    public ResponseEntity<DoctorResponse> getById(long id) {
 
-        return doctorMapper.asOutput(doctorRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND)));
+        Optional<Doctor> doctor = doctorRepo.findById(id);
+
+        if (doctor.isEmpty()) {
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }
+        DoctorResponse doctorResponse = doctorMapper.asOutput(doctor.get());
+
+        return ResponseEntity.ok(doctorResponse);
     }
 
     @Override
-    public DoctorResponse create(DoctorRequest request) {
+    public ResponseEntity<DoctorResponse> create(DoctorRequest request) {
 
         Optional<Doctor> isDoctorExist = doctorRepo.findByMail(request.getMail());
 
-        if (isDoctorExist.isEmpty()){
+        if (isDoctorExist.isPresent()){
 
-            Doctor doctorSaved = doctorRepo.save(doctorMapper.asEntity(request));
-
-            return doctorMapper.asOutput(doctorSaved);
+            throw new DataExistsException(Msg.DATA_EXISTS);
 
         }
-        throw new DataExistsException(Msg.DATA_EXISTS);
+        Doctor doctorSaved = doctorRepo.save(doctorMapper.asEntity(request));
+
+        DoctorResponse doctorResponse = doctorMapper.asOutput(doctorSaved);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(doctorResponse);
 
     }
 
     @Override
-    public DoctorResponse update(long id, DoctorRequest request) {
+    public ResponseEntity<DoctorResponse> update(long id, DoctorRequest request) {
 
         Optional<Doctor> doctorFromDb = doctorRepo.findById(id);
 
@@ -78,18 +102,24 @@ public class DoctorManager implements IDoctorService {
 
         doctorMapper.update(doctor, request);
 
-        return doctorMapper.asOutput(doctorRepo.save(doctor));
+        Doctor updatedDoctor = doctorRepo.save(doctor);
+
+        DoctorResponse doctorResponse = doctorMapper.asOutput(updatedDoctor);
+
+        return ResponseEntity.ok(doctorResponse);
 
     }
 
     @Override
-    public void deleteById(long id) {
+    public ResponseEntity<Void> deleteById(long id) {
 
         Optional<Doctor> doctorFromDb = doctorRepo.findById(id);
 
         if (doctorFromDb.isPresent()){
 
             doctorRepo.delete(doctorFromDb.get());
+
+            return ResponseEntity.ok().build();
 
         } else {
 
