@@ -1,6 +1,7 @@
 package dev.nida.petclinic.dto.request;
 
 import dev.nida.petclinic.entities.Animal;
+import dev.nida.petclinic.entities.Report;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
@@ -38,5 +39,8 @@ public class VaccineRequest {
 
     @NotNull
     private Animal animal;
+
+    @NotNull
+    private Report report;
 
 }
