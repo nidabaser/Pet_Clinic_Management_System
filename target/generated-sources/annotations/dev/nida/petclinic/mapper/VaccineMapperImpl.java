@@ -27,6 +27,7 @@ public class VaccineMapperImpl implements VaccineMapper {
         vaccine.setProtectionStartDate( vaccineRequest.getProtectionStartDate() );
         vaccine.setProtectionFinishDate( vaccineRequest.getProtectionFinishDate() );
         vaccine.setAnimal( vaccineRequest.getAnimal() );
+        vaccine.setReport( vaccineRequest.getReport() );
 
         return vaccine;
     }
@@ -74,5 +75,6 @@ public class VaccineMapperImpl implements VaccineMapper {
         entity.setProtectionStartDate( request.getProtectionStartDate() );
         entity.setProtectionFinishDate( request.getProtectionFinishDate() );
         entity.setAnimal( request.getAnimal() );
+        entity.setReport( request.getReport() );
     }
 }

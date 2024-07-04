@@ -2,10 +2,7 @@ package dev.nida.petclinic.dto.response;
 
 import dev.nida.petclinic.entities.Appointment;
 import dev.nida.petclinic.entities.Vaccine;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -17,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ReportResponse {
 
     private Long id;

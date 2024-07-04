@@ -3,7 +3,7 @@ package dev.nida.petclinic.controller;
 import dev.nida.petclinic.service.abstracts.IReportService;
 import dev.nida.petclinic.dto.request.ReportRequest;
 import dev.nida.petclinic.dto.response.ReportResponse;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 
 @RestController
-@RequiredArgsConstructor
+@AllArgsConstructor
 @RequestMapping("/api/v1/reports")
 public class ReportController {
 
